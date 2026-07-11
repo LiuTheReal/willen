@@ -21,13 +21,16 @@ jobs:
           fetch-depth: 0
           submodules: false
 
-      - name: Replace submodule with vendored Mira files
+      - name: Import Mira as ordinary repository files
         shell: bash
         env:
           MIRA_UPSTREAM_SHA: adddce7c6f41be309855e3c7d047e309bbe58a3a
         run: |
           set -euo pipefail
 
+          # A previous revision may have tracked Mira as a gitlink. Remove that
+          # index entry explicitly before adding the extracted ordinary files.
+          git rm -f --cached Mira 2>/dev/null || true
           rm -rf Mira
           rm -f .gitmodules
           mkdir -p Mira
