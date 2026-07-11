@@ -1,0 +1,37 @@
+{
+  "manifest_version": "mira_research_package_v1",
+  "case_id": "{{case_id}}",
+  "research_object": "{{research_object}}",
+  "market_scope": "{{market_scope}}",
+  "time_boundary": "{{time_boundary}}",
+  "research_cutoff_date": "{{YYYY-MM-DD}}",
+  "package_type": "research_package",
+  "readiness_level": "draft",
+  "readiness_basis": "{{why this package has this readiness level}}",
+  "blocking_gaps": [],
+  "primary_loop": "loops/research-loop.md",
+  "lead_skill": "skills/equity-research-core/SKILL.md",
+  "support_skills": [],
+  "hero_artifacts": [
+    "investment-memo.md"
+  ],
+  "support_artifacts": [
+    "evidence-log.csv",
+    "case-notes.md"
+  ],
+  "triggered_artifact_policy": {
+    "actionability_bridge": "When actionability is retained or changes thesis state, add actionability-bridge.md to support_artifacts.",
+    "left_side_participation_check": "When participation_stage is left_side_candidate, add left-side-participation-check.md to support_artifacts or record an explicit waiver/downgrade in notes.",
+    "handoffs": "When an artifact changes actionability, position review, portfolio review or thesis state, add the next loop or review target to handoffs."
+  },
+  "handoffs": [],
+  "source_scope": "{{brief description of source coverage}}",
+  "evidence_log_status": "draft",
+  "quant_gate_status": "not_required",
+  "calculation_artifacts": [],
+  "stale_after": "{{YYYY-MM-DD}}",
+  "must_refresh_if": [
+    "{{specific event, filing, price move, estimate revision or macro release}}"
+  ],
+  "notes": "{{package limitations or reviewer notes}}"
+}
