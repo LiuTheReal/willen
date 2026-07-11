@@ -1,0 +1,117 @@
+name: Vendor Mira source tree
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/vendor-mira.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-mira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Replace submodule with vendored Mira files
+        shell: bash
+        env:
+          MIRA_UPSTREAM_SHA: adddce7c6f41be309855e3c7d047e309bbe58a3a
+        run: |
+          set -euo pipefail
+
+          rm -rf Mira
+          rm -f .gitmodules
+          mkdir -p Mira
+
+          curl --fail --location --silent --show-error \
+            "https://github.com/byteseek/Mira/archive/${MIRA_UPSTREAM_SHA}.tar.gz" \
+            -o /tmp/mira.tar.gz
+          tar -xzf /tmp/mira.tar.gz --strip-components=1 -C Mira
+
+          cat > MIRA_UPSTREAM.md <<EOF
+          # Mira upstream provenance
+
+          - Upstream repository: https://github.com/byteseek/Mira
+          - Vendored commit: \`${MIRA_UPSTREAM_SHA}\`
+          - Vendored path: \`Mira/\`
+          - Import method: source archive, stored as ordinary repository files
+
+          To refresh the vendored copy, update \`MIRA_UPSTREAM_SHA\` in
+          \`.github/workflows/vendor-mira.yml\`, commit the workflow change, and
+          review the generated source-tree commit.
+          EOF
+
+          cat > README.md <<'EOF'
+          # Mira Project
+
+          This repository contains a vendored copy of
+          [byteseek/Mira](https://github.com/byteseek/Mira) under `Mira/` as
+          ordinary Git files. ChatGPT, Codex, GitHub search, and other repository
+          readers can therefore index the complete Mira rule, loop, skill,
+          template, and validation tree without Git submodule expansion.
+
+          Mira is an agent-native investment-research protocol and workspace. It
+          is not a standalone web service, trading bot, or autonomous portfolio
+          manager.
+
+          ## Start using Mira
+
+          - Repository-aware agents: begin with `AGENTS.md`, then
+            `Mira/START_HERE.md` and `Mira/OPERATING_CONTRACT.md`.
+          - ChatGPT Projects: use `CHATGPT_PROJECT_INSTRUCTIONS.md` as the Project
+            Instructions entry pack.
+          - Main Mira identity and boundaries: `Mira/MIRA.md`.
+
+          A typical request is:
+
+          ```text
+          Mira，研究 <公司或 ticker>
+          研究问题：<需要判断的问题>
+          市场范围：<市场>
+          时间边界：<截至日期或研究周期>
+          来源边界：<公开来源/指定材料>
+          输出深度：quick_map / standard / deep_dive
+          ```
+
+          ## Validate
+
+          ```bash
+          cd Mira
+          python3 scripts/run_quality_gate.py
+          python3 scripts/validate_repo.py
+          ```
+
+          ## Update upstream
+
+          Upstream provenance and the refresh procedure are recorded in
+          `MIRA_UPSTREAM.md`. Updating Mira should be reviewed as a normal source
+          diff rather than performed implicitly at runtime.
+
+          ## License and boundaries
+
+          The vendored Mira source remains licensed under Apache-2.0. Its
+          research, data, security, and usage boundaries remain governed by the
+          documents inside `Mira/`, including `LICENSE`, `DATA_POLICY.md`, and
+          `SECURITY.md`.
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No vendoring changes detected."
+            exit 0
+          fi
+
+          git commit -m "chore: vendor Mira source tree"
+          git push origin HEAD:main
